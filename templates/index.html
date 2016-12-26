@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>上传文件</title>
+    <script src="/static/jquery-3.0.0.js"></script>
+    <script>
+        let log = function () {
+            console.log(arguments);
+        }
+        var upload = function (file) {
+            // 要用一个 formdata 对象来装 file
+            var fd = new FormData();
+            fd.append('uploaded', file);
+
+            log(fd);
+            $.ajax({
+                url: '/upload',
+                method: 'post',
+                // 上传文件的时候下面这两个选项一定要加上
+                contentType: false,
+                processData: false,
+                data: fd,
+                success: function (r) {
+                    console.log('上传成功', file.name);
+                },
+                error: function () {
+                    console.log('上传失败', file.name);
+                }
+            });
+        };
+
+        $(document).ready(function () {
+            $('#id-button-upload').on('click', function () {
+                var fileTag = $('#id-input-file')[0];
+                var files = fileTag.files;
+                var numberOfFiles = files.length;
+                if (numberOfFiles == 0) {
+                    alert('还没有选中文件');
+                } else {
+                    for (var i = 0; i < numberOfFiles; i++) {
+                        var file = files[i];
+                        console.log('上传的文件: ', file.name);
+                        upload(file);
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div>
+    <!-- 要设置 enctype=multipart/form-data 属性 -->
+    <form action="/upload" method="post" enctype=multipart/form-data>
+        <!-- 这个 name 是服务器接受到的文件字典的 key -->
+        <!-- 具体请看服务器代码 -->
+        <input type="file" name="uploaded">
+        <br>
+        <button type="submit">浏览器原生上传文件</button>
+    </form>
+</div>
+<hr>
+<div class="file-wrapper">
+    <!-- 指定 multiple 可以上传多个文件 -->
+    <input id="id-input-file" multiple type="file">
+    <button id="id-button-upload">Ajax 批量上传文件</button>
+</div>
+</body>
+</html>
